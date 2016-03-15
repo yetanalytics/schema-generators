@@ -2,12 +2,13 @@
   #?(:clj (:use clojure.test))
   (:require
    #?(:cljs [cljs.test :refer-macros [deftest is testing run-tests]])
-   [clojure.test.check]
+   [clojure.test.check :refer [quick-check]]
    [clojure.test.check.properties :as properties :include-macros true]
    [clojure.test.check.generators :as check-generators]
    [clojure.test.check.clojure-test #?@(:clj [:refer [defspec]]
                                         :cljs [:refer-macros [defspec]])]
    [schema.core :as s :include-macros true]
+   [schema-generators.test-helpers :refer [schema-gen]]
    [schema-generators.generators :as generators]))
 
 (def OGInner
@@ -53,3 +54,13 @@
   50
   (properties/for-all [x (generators/generator OGSchema)]
                       (not (s/check OGSchema x))))
+
+(defspec random-spec-test
+  50
+  (properties/for-all
+   [rand-schema schema-gen]
+   (:result
+    (quick-check
+     10
+     (properties/for-all [schema-data (generators/generator rand-schema)]
+                         (nil? (s/check rand-schema schema-data)))))))
