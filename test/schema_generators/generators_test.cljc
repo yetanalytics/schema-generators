@@ -59,5 +59,6 @@
   100
   (properties/for-all
    [rand-schema schema-gen]
-   (nil? (s/check rand-schema
-                  (generators/generate rand-schema)))))
+   (= nil
+      (s/check generators/Schema rand-schema)
+      (s/check rand-schema (generators/generate rand-schema)))))
