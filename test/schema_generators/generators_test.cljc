@@ -61,6 +61,6 @@
    [rand-schema schema-gen]
    (:result
     (quick-check
-     10
+     5
      (properties/for-all [schema-data (generators/generator rand-schema)]
                          (nil? (s/check rand-schema schema-data)))))))
