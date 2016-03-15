@@ -5,6 +5,20 @@
 ;; We can test schema generation by generating random schemata,
 ;; generating them, and checking the result.
 
+(def ^:private POS_INFINITY #?(:clj Double/POSITIVE_INFINITY, :cljs (.-POSITIVE_INFINITY js/Number)))
+(def ^:private NEG_INFINITY #?(:clj Double/NEGATIVE_INFINITY, :cljs (.-NEGATIVE_INFINITY js/Number)))
+(def ^:private NAN #?(:clj Double/NaN, :cljs (.-NaN js/Number)))
+
+
+(def safe-any
+  (gen/such-that
+   (fn [x]
+     (and (not= x POS_INFINITY)
+          (not= x NEG_INFINITY)
+          (not= x NAN)))
+   gen/simple-type-printable
+   100))
+
 (def name-gen
   (gen/one-of
    [(gen/not-empty gen/string-ascii)
@@ -13,12 +27,12 @@
 (def eq-gen
   (gen/fmap
    s/eq
-   gen/any))
+   safe-any))
 
 (def enum-gen
   (gen/fmap
    s/enum
-   (gen/vector gen/any 2 6)))
+   (gen/vector safe-any 2 6)))
 
 
 
