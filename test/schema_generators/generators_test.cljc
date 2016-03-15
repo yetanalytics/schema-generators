@@ -56,11 +56,8 @@
                       (not (s/check OGSchema x))))
 
 (defspec random-spec-test
-  50
+  100
   (properties/for-all
    [rand-schema schema-gen]
-   (:result
-    (quick-check
-     5
-     (properties/for-all [schema-data (generators/generator rand-schema)]
-                         (nil? (s/check rand-schema schema-data)))))))
+   (nil? (s/check rand-schema
+                  (generators/generate rand-schema)))))
