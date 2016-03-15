@@ -101,6 +101,8 @@
       #_(gen/let [inner inner-gen]
         (s/constrained inner (complement nil?)))
 
+      ;; conditional same deal
+
       ;; if
       (gen/let [inner inner-gen]
         (s/if integer?
