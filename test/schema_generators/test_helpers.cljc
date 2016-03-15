@@ -84,12 +84,18 @@
         inner-gen
         name-gen))
 
-      ;; cond-pre.. doesn't work yet..
-      #_(gen/fmap
-       (partial apply s/cond-pre)
-       (gen/vector-distinct
-        inner-gen
-        {:min-elements 2 :max-elements 6}))
+      ;; cond-pre.. TODO: improve, see if we can use inner-gen
+      (gen/let [schemas (gen/vector-distinct
+                         (gen/elements
+                          [s/Str
+                           s/Num
+                           s/Bool
+                           s/Inst
+                           s/Keyword
+                           s/Symbol
+                           s/Uuid])
+                         {:min-elements 2 :max-elements 7})]
+        (apply s/cond-pre schemas))
 
       ;; constrained... fails as tries are locked at 10
       #_(gen/let [inner inner-gen]
