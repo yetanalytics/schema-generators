@@ -35,22 +35,22 @@
 
 
 (def leaf-gen
-  (gen/one-of
-   [(gen/elements
-     [s/Str
-      s/Bool
-      s/Num
-      s/Int
-      s/Keyword
-      s/Symbol
-      ;; s/Regex
-      s/Inst
-      s/Uuid
-      s/Any
+  (gen/frequency
+   [[9 (gen/elements
+        [s/Str
+         s/Bool
+         s/Num
+         s/Int
+         s/Keyword
+         s/Symbol
+         ;; s/Regex
+         s/Inst
+         s/Uuid
+         s/Any
 
-      ])
-    eq-gen
-    enum-gen]))
+         ])]
+    [1 eq-gen]
+    [1 enum-gen]]))
 
 (def required-key-gen
   (gen/fmap
