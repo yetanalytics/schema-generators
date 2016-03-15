@@ -1,9 +1,7 @@
 (ns schema-generators.test-helpers
+  "Provides generators that make valid schemata."
   (:require [schema.core :as s :include-macros true]
             [clojure.test.check.generators :as gen :include-macros true]))
-
-;; We can test schema generation by generating random schemata,
-;; generating them, and checking the result.
 
 (def ^:private POS_INFINITY #?(:clj Double/POSITIVE_INFINITY, :cljs (.-POSITIVE_INFINITY js/Number)))
 (def ^:private NEG_INFINITY #?(:clj Double/NEGATIVE_INFINITY, :cljs (.-NEGATIVE_INFINITY js/Number)))
