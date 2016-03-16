@@ -78,7 +78,7 @@
          (let [non-specific-keys (->> m keys (remove s/specific-key?))]
            (if (< (count non-specific-keys) 2)
              m
-             (apply dissoc m (rest non-specific-keys)))))
+             (apply dissoc m (rest (shuffle non-specific-keys))))))
        (gen/map (gen/one-of
                  [schema-key-gen
                   inner-gen]) inner-gen))
