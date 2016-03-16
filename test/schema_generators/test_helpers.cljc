@@ -71,66 +71,7 @@
 (def branch-gen
   (fn [inner-gen]
     (gen/one-of
-     [;; maybe schema
-      (gen/fmap
-       s/maybe
-       inner-gen)
-
-      ;; named schema
-      (gen/fmap
-       (fn [[s n]]
-         (s/named s n))
-       (gen/tuple
-        inner-gen
-        name-gen))
-
-      ;; cond-pre.. TODO: improve, see if we can use inner-gen
-      (gen/let [schemas (gen/vector-distinct
-                         (gen/elements
-                          [s/Str
-                           s/Num
-                           s/Bool
-                           s/Inst
-                           s/Keyword
-                           s/Symbol
-                           s/Uuid])
-                         {:min-elements 2 :max-elements 7})]
-        (apply s/cond-pre schemas))
-
-      ;; constrained... fails as tries are locked at 10
-      #_(gen/let [inner inner-gen]
-        (s/constrained inner (complement nil?)))
-
-      ;; conditional same deal
-
-      ;; if
-      (gen/let [inner inner-gen]
-        (s/if integer?
-          s/Int
-          s/Str))
-
-      ;; atom? doesn't seem to work..
-      #_(gen/let [anyval gen/any]
-        (s/atom anyval))
-
-      ;; queue
-      (gen/fmap
-       s/queue
-       inner-gen)
-
-      ;; pair
-      (gen/fmap
-       (partial apply s/pair)
-       (gen/tuple
-        inner-gen
-        name-gen
-        inner-gen
-        name-gen))
-
-      ;; set
-      (gen/let [inner inner-gen]
-        #{inner})
-
+     [;; Collections
       ;; basic map schema
       (gen/fmap
        (fn [m]
@@ -145,18 +86,81 @@
       ;; seq schema
       ;; optional currently broken, see https://github.com/plumatic/schema/pull/342
       (gen/fmap
-         (fn [[n one one-k optional optional-k all]]
-           (into [] (take n [(s/one one one-k)
-                             ;; (s/optional optional optional-k)
-                             all])))
+       (fn [[n one one-k optional optional-k all]]
+         (into [] (take n [(s/one one one-k)
+                           ;; (s/optional optional optional-k)
+                           all])))
+       (gen/tuple
+        (gen/large-integer* {:min 0 :max 2 ;; 3
+                             })
+        inner-gen
+        gen/keyword
+        inner-gen
+        gen/keyword
+        inner-gen))
+
+      ;; pair
+      (gen/fmap
+       (partial apply s/pair)
+       (gen/tuple
+        inner-gen
+        name-gen
+        inner-gen
+        name-gen))
+
+      ;; set
+      (gen/let [inner inner-gen]
+        #{inner})
+
+
+      ;; variants
+      (gen/one-of ;; all these share a frequency
+       [;; maybe schema
+        (gen/fmap
+         s/maybe
+         inner-gen)
+
+        ;; named schema
+        (gen/fmap
+         (fn [[s n]]
+           (s/named s n))
          (gen/tuple
-          (gen/large-integer* {:min 0 :max 2 ;; 3
-                               })
           inner-gen
-          gen/keyword
-          inner-gen
-          gen/keyword
-          inner-gen))])))
+          name-gen))
+
+        ;; cond-pre.. TODO: improve, see if we can use inner-gen
+        (gen/let [schemas (gen/vector-distinct
+                           (gen/elements
+                            [s/Str
+                             s/Num
+                             s/Bool
+                             s/Inst
+                             s/Keyword
+                             s/Symbol
+                             s/Uuid])
+                           {:min-elements 2 :max-elements 7})]
+          (apply s/cond-pre schemas))
+
+        ;; constrained... fails as tries are locked at 10
+        #_(gen/let [inner inner-gen]
+            (s/constrained inner (complement nil?)))
+
+        ;; conditional same deal
+
+        ;; if
+        (gen/let [inner inner-gen]
+          (s/if integer?
+            s/Int
+            s/Str))
+
+        ;; atom? doesn't seem to work..
+        #_(gen/let [anyval gen/any]
+            (s/atom anyval))
+
+        ;; queue
+        (gen/fmap
+         s/queue
+         inner-gen)])])))
 
 (def schema-gen
   (gen/recursive-gen
